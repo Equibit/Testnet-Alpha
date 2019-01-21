@@ -66,5 +66,13 @@ If you hit that limit your wallet will appear to have a zero balance. DON'T PANI
 
 ### multi_spam
 
-# Stress-Tester Achievement
+This script simply cycles through two or more nodes, calling eqb_spam for each one in turn. At the end of a cycle it waits a minute before starting the next cycle. This script was developed to address the problem describe above where a node runs out of funds to send due to the limit of the number of change transactions that can exist in the mempool at a given time. It seems to take a fair abount of time before a node's wallet builds up enough small UTXOs to run eqb_spam continuously.
+
+Edit the script to configure it for your nodes then run it with python:
+
+```
+python multi_spam.py
+```
+
+
 
