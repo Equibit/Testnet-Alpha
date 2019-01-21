@@ -2,10 +2,10 @@
 
 These scripts are designed to spam the EQB testnet with small random transactions in order to stress-test the system.
 
-You will need python installed, and also jgarzik's [bitcoinrpc](https://github.com/jgarzik/python-bitcoinrpc) package:
+You will need python3 installed, and also jgarzik's [bitcoinrpc](https://github.com/jgarzik/python-bitcoinrpc) package:
 
 ```
-pip install python-bitcoinrpc
+pip3 install python-bitcoinrpc
 ```
 
 There are two ways to join the Spam Network, as a sender and as a receiver (ideally both). You will need some EQB in your wallet to participate as a sender, either through mining or accumulated as a receiver before becoming a sender.
@@ -46,7 +46,7 @@ Using the default values hard-code in the script it will send between 0.000001 a
 
 Then run it with python:
 ```
-python eqb_spam.py
+python3 eqb_spam.py
 Using http://equibit:equibit@127.0.0.1:18331 ...
 0 sent 0.007138 to eqbtestnet1q5xjschuuhhvnuwe0zp54xd5gtma3ygrtvhydfd in txid d667f3c431f682fc6be23bfea6bd09d08275fc4ec0aaad5d3b12e65201f79a85
 1 sent 0.005273 to eqbtestnet1qx7m4ja35j5vsflvrywhrd3wznezfnj86khfqw4 in txid 0dc0fc80b0378cbf72ddf2cd54ae70cba96b08d3364d17e0e297bcf3ec458c9d
@@ -71,7 +71,7 @@ This script simply cycles through two or more nodes, calling eqb_spam for each o
 Edit the script to configure it for your nodes then run it with python:
 
 ```
-python multi_spam.py
+python3 multi_spam.py
 ```
 
 
