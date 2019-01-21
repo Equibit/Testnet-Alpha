@@ -34,7 +34,31 @@ That can be done through the normal software development process (branch, edit, 
 
 ## Sender
 
+There are two scripts for sending transactions. Use eqb_spam if you have a single node, use multi_spam if you have two or more spam nodes. The multi_spam script uses eqb_spam so you'll have to download both.
+
+Either clone this repo to get the scripts or download them directly to a new folder.
+
 ### eqb_spam
+
+Edit the script to check the defaults (if you changed the node's default user, password or port its configuration file you'll have to update the script).
+
+Using the default values hard-code in the script it will send between 0.000001 and 0.009999 EQB to an address chosen randomly from the list ten times before exiting. (TBD, you should be able to override the default N=10 on the command line.)
+
+Then run it with python:
+```
+python eqb_spam.py
+Using http://equibit:equibit@127.0.0.1:18331 ...
+0 sent 0.007138 to eqbtestnet1q5xjschuuhhvnuwe0zp54xd5gtma3ygrtvhydfd in txid d667f3c431f682fc6be23bfea6bd09d08275fc4ec0aaad5d3b12e65201f79a85
+1 sent 0.005273 to eqbtestnet1qx7m4ja35j5vsflvrywhrd3wznezfnj86khfqw4 in txid 0dc0fc80b0378cbf72ddf2cd54ae70cba96b08d3364d17e0e297bcf3ec458c9d
+2 sent 0.007801 to eqbtestnet1qx7m4ja35j5vsflvrywhrd3wznezfnj86khfqw4 in txid efa19ef1bf05a01b3469b09da56a24f9908c3a3fb3d43e92a802e2ab21d26674
+3 sent 0.007832 to eqbtestnet1q5xjschuuhhvnuwe0zp54xd5gtma3ygrtvhydfd in txid 846a074ca9237c27db6e9a7d34995268f581094e59ff7acd4c85549fe947f17d
+4 sent 0.007313 to eqbtestnet1qx7m4ja35j5vsflvrywhrd3wznezfnj86khfqw4 in txid 77b3859534e5fc75bde8bc51578d233a95aee0b2233ec32b713532d3645e3c43
+5 sent 0.008725 to eqbtestnet1qettj7geg32mepyd44qxdnsmudtnvau66qgpse3 in txid 2871ca081fee676e50cc54ccb112699672385a73863d5482f6c1d891875fcbad
+6 sent 0.007799 to eqbtestnet1q5xjschuuhhvnuwe0zp54xd5gtma3ygrtvhydfd in txid 93ec1a6567be253c4456b3a22592e60534d537b721867517ea363645c37c327e
+7 sent 0.001681 to eqbtestnet1qx7m4ja35j5vsflvrywhrd3wznezfnj86khfqw4 in txid 4050887306e3e01127f4d89cb55d0feb5e26573a55096cd92e7dfb472bf3a250
+8 sent 0.003091 to eqbtestnet1q5xjschuuhhvnuwe0zp54xd5gtma3ygrtvhydfd in txid 5d28990e23652e67aad5b438374cf3e5bf6500d48e26764b1680edeb0129a334
+9 sent 0.003438 to eqbtestnet1qettj7geg32mepyd44qxdnsmudtnvau66qgpse3 in txid 9bfd4a3e6992b58cd1b60830bf5684779699e5fec5354e475bd7a1e775903a55
+```
 
 ### multi_spam
 
