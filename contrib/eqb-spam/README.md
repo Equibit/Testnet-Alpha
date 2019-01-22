@@ -30,7 +30,7 @@ addresses = [
 ]
 ```
 
-That can be done through the normal software development process (branch, edit, commit, push), but we suggest taking the asy route and editing the file directly in github, just make sure you add a good comment when you commit.
+That can be done through the normal software development process (branch, edit, commit, push), but we suggest taking the easy route and editing the file directly in github, just make sure you add a good comment when you commit.
 
 ## Sender
 
@@ -40,9 +40,9 @@ Either clone this repo to get the scripts or download them directly to a new fol
 
 ### eqb_spam
 
-Edit the script to check the defaults (if you changed the node's default user, password or port its configuration file you'll have to update the script).
+Edit the script and check the defaults (if you changed the node's default user, password or port in the configuration file you'll have to update the script).
 
-Using the default values hard-code in the script it will send between 0.000001 and 0.009999 EQB to an address chosen randomly from the list ten times before exiting. (TBD, you should be able to override the default N=10 on the command line.)
+Using the default values hard-coded in the script it will send between 0.000001 and 0.0009999 EQB to an address chosen randomly from the list. The script will ask how many transactions to send before exiting. You should also specify the interval at which the transactions will be sent.
 
 Then run it with python:
 ```
@@ -60,7 +60,7 @@ Using http://equibit:equibit@127.0.0.1:18331 ...
 9 sent 0.003438 to eqbtestnet1qettj7geg32mepyd44qxdnsmudtnvau66qgpse3 in txid 9bfd4a3e6992b58cd1b60830bf5684779699e5fec5354e475bd7a1e775903a55
 ```
 
-If the wallet runs out of funds to send it will simply exit before eaching the specified number of iterations. THIS OFTEN HAPPENS WAY SOONER THAN EXPECTED. The issue is that when you send funds you always send more in terms of UTXOs, some goes to miner fees and the rest comes back in change in a single UTXO. You can spend the change before it is confirmed in a block, but only up to a chain of 25 in the mempool (this is a limit inherited from bitcoin core). 
+If the wallet runs out of funds to send it will simply exit before reaching the specified number of iterations. THIS OFTEN HAPPENS WAY SOONER THAN EXPECTED. The issue is that when you send funds you always send more in terms of UTXOs, some goes to miner fees and the rest comes back in change in a single UTXO. You can spend the change before it is confirmed in a block, but only up to a chain of 25 in the mempool (this is a limit inherited from bitcoin core). 
 
 If you hit that limit your wallet will appear to have a zero balance. DON'T PANIC. Even if `getwalletinfo` shows zero balance you can use the `listaccounts` CLI command to show the true balance. You just have to wait until some of those change UTXOs get confirmed in the next block to free up some UTXOs to spend again.
 
