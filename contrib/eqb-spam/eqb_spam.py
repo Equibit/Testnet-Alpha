@@ -24,12 +24,12 @@ addresses = [
     ]
 
 
-def send_eqb(x):
+def send_eqb(auth):
     addr = random.choice(addresses)
-    amount = random.randint(1,1000)/1000000.0
+    amount = random.randint(1,10000)/1000000.0
     try:
-        res = x.sendtoaddress(addr, amount)
-        bal = x.getbalance()
+        res = auth.sendtoaddress(addr, amount)
+        bal = auth.getbalance()
         return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
     except:
         return None
