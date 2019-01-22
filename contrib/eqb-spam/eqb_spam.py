@@ -67,9 +67,9 @@ def start(N, t):
     print("")
 
 if __name__ == '__main__':
-    rounds = input("\nNumber of transactions to send: ")
-    interval = input("Interval (seconds) between transactions: ")
     try:
+        rounds = input("\nNumber of transactions to send: ")
+        interval = input("Interval (seconds) between transactions: ")
         start(rounds, interval)
     except KeyboardInterrupt:
         sys.exit("\nInterrupted, exiting.\n")
