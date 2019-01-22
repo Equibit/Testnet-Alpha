@@ -42,7 +42,7 @@ Either clone this repo to get the scripts or download them directly to a new fol
 
 Edit the script and check the defaults (if you changed the node's default user, password or port in the configuration file you'll have to update the script).
 
-Using the default values hard-coded in the script it will send between 0.000001 and 0.0009999 EQB to an address chosen randomly from the list. The script will ask how many transactions to send before exiting. You should also specify the interval at which the transactions will be sent.
+Using the default values hard-coded in the script it will send between 0.000001 and 0.0099999 EQB to an address chosen randomly from the list. The script will ask how many transactions to send before exiting. You should also specify the interval at which the transactions will be sent.
 
 Then run it with python:
 ```
