@@ -27,7 +27,6 @@ addresses = [
 auth = AuthServiceProxy(RPCurl) # Initial authentication.
 
 def send_eqb():
-    global auth
     addr = random.choice(addresses)
     amount = random.randint(1,10000)/1000000.0
     try:
@@ -38,7 +37,7 @@ def send_eqb():
         sys.exit("\n\nInterrupted, exiting.\n")
     except Exception:
         print("\n\nThere was a problem. Retrying for a few minutes.\n")
-        
+
         # The node can temporarily become unresponsive.
         # Let's poke the node and resume sending when, and if it wakes up again.
         x = 0
@@ -46,17 +45,15 @@ def send_eqb():
             time.sleep(5)
             sys.stdout.write(".") # Let the user know we're still alive and well.
             sys.stdout.flush()
-            auth = AuthServiceProxy(RPCurl) # Reauthentication required if the node has been restarted.
             try:
                 res = auth.sendtoaddress(addr, amount)
                 bal = auth.getbalance()
                 print("\n\nRecovered, resuming ...\n")
-                sys.stdout.flush()
                 break
             except:
                 x += 5
         if x != 180:
-            return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
+            return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:$
         else:
             sys.exit("\nUnable to recover. Exiting.\n")
         
