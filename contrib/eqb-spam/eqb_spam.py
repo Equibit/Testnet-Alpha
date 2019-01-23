@@ -1,4 +1,4 @@
-# Sends a small random transaction to a random address
+# Sends small random transactions to random addresses
 #
 # Depends on https://github.com/jgarzik/python-bitcoinrpc
 # pip install python-bitcoinrpc
