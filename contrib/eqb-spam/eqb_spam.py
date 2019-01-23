@@ -6,7 +6,6 @@
 from __future__ import print_function
 from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import random
-import datetime
 import time
 import sys
 
