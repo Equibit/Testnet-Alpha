@@ -21,6 +21,9 @@ addresses = [
     "eqbtestnet1q2zl38kysmudqkzhc9x2asj9q80wwylrw9ptsnp", # @macterra/deadpool-2
     "eqbtestnet1qmsahc26h2a0azk9z43m5w5htqklr2e5t5svynl", # @macterra/deadpool-3
     "eqbtestnet1q7z83eksyceecdyfsz43z7pqw9c475mmlan6kh4", # @Jorgeminator/Statsy
+    "eqbtestnet1q5rvfa3rnx9dykk3cg35fzq86aczh3ed4y0l8vu", # @pete/peteminer-1
+    "eqbtestnet1qrucy65lehr67pjeg88gmse7k055la77j8dysmv", # @pete/peteminer-2
+    "eqbtestnet1q7qsm0hn5sw456kf34mu3hhcy5lzcy5jfm29rda", # @pete/peteminer-3
     ]
 
 auth = AuthServiceProxy(RPCurl) # Initial authentication.
