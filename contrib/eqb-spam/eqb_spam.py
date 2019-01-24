@@ -62,7 +62,7 @@ def send_eqb():
 def start(N, t):
     i = 0
     print("\nUsing {} ...\n".format(RPCurl))
-    while i <= N-1:
+    while i <= N:
         time.sleep(t)
         log = send_eqb()
         if log:
@@ -73,8 +73,8 @@ def start(N, t):
 
 if __name__ == '__main__':
     try:
-        rounds = input("\nNumber of transactions to send: ")
-        interval = input("Interval (seconds) between transactions: ")
+        rounds = int(input("\nNumber of transactions to send: "))
+        interval = int(input("Interval (seconds) between transactions: "))
         start(rounds, interval)
     except KeyboardInterrupt:
         sys.exit("\n\nInterrupted, exiting.\n")
