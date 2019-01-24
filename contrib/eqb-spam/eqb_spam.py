@@ -55,7 +55,7 @@ def send_eqb():
             except:
                 x += 5
         if x != 180:
-            return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:$
+            return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
         else:
             sys.exit("\nUnable to recover. Exiting.\n")
         
