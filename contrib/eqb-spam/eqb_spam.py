@@ -48,6 +48,8 @@ def send_eqb():
             sys.stdout.write(".") # Let the user know we're still alive and well.
             sys.stdout.flush()
             try:
+                addr = random.choice(addresses)
+                amount = random.randint(1,10000)/1000000.0
                 res = auth.sendtoaddress(addr, amount)
                 bal = auth.getbalance()
                 print("\n\nRecovered, resuming ...\n")
@@ -62,7 +64,7 @@ def send_eqb():
 def start(N, t):
     i = 0
     print("\nUsing {} ...\n".format(RPCurl))
-    while i <= N:
+    while i < N:
         time.sleep(t)
         log = send_eqb()
         if log:
