@@ -1,0 +1,3 @@
+[submodule "contrib/docker/eqb-node/equibit-core"]
+	path = contrib/docker/eqb-node/equibit-core
+	url = https://github.com/Equibit/equibit-core.git
