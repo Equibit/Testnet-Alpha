@@ -15,6 +15,7 @@ RPCurl = "http://rpc_user:rpc_password@127.0.0.1:18331"
 # Add your own addresses to the list in a PR to join the EQB spam network!
 addresses = [
     "eqbtestnet1qrappns9a3rvhz6xtegh9nywcazmq3kt08z0ec6", # @macterra/morningstar-1
+    "eqbtestnet1qs9zwqh9qlj0z7ut2elkel2czl7weqvlp5dzjzz", # @macterra/xenomorph-1
     "eqbtestnet1qx7m4ja35j5vsflvrywhrd3wznezfnj86khfqw4", # @macterra/star-lord-1
     "eqbtestnet1qettj7geg32mepyd44qxdnsmudtnvau66qgpse3", # @macterra/star-lord-2
     "eqbtestnet1q5xjschuuhhvnuwe0zp54xd5gtma3ygrtvhydfd", # @macterra/star-lord-3
