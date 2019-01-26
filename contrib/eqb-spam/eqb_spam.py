@@ -9,9 +9,13 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import random
 import time
 import sys
+import os
+import logging
+from collections import namedtuple
 
 # rpc_user and rpc_password are set in the equibit.conf file
-RPCurl = "http://rpc_user:rpc_password@127.0.0.1:18331"
+#RPCurl = "http://rpc_user:rpc_password@127.0.0.1:18331"
+RPCurl = "http://equibit:equibit@dockerhost:18331"
 
 # Add your own addresses to the list in a PR to join the EQB spam network!
 addresses = [
@@ -32,10 +36,9 @@ addresses = [
 
 MAX_RETRIES = 36
 
-conn = None # Connection
+Config = namedtuple('Config', ['use_logger', 'fake'])
 
-def send_eqb():
-
+def send_eqb(config, conn, i):
     done = False
     attempt = 1
 
@@ -43,7 +46,7 @@ def send_eqb():
         addr = random.choice(addresses)
         amount = random.randint(1,10000)/1000000.0
         try:
-            res = conn.sendtoaddress(addr, amount)
+            res = conn.sendtoaddress(addr, amount) if not config.fake else "FAKE"
             bal = conn.getbalance()
             done = True
         except KeyboardInterrupt:
@@ -54,37 +57,64 @@ def send_eqb():
             # Let's poke the node and resume sending when, and if it wakes up again.
 
             if attempt == 1:
-                print("\n\nThere was a problem (%s). Retrying for a few minutes.\n" % str(ex))
+                log.warning("There was a problem ({}). Retrying for a few minutes.".format(str(ex)))
 
-            time.sleep(5)
             attempt += 1
 
-            sys.stdout.write(".") # Let the user know we're still alive and well.
-            sys.stdout.flush()
+            time.sleep(5)
+
+            if not config.use_logger:
+                sys.stdout.write(".") # Let the user know we're still alive and well.
+                sys.stdout.flush()
 
     if done:
-        return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
+        msg = "Tx #{:02d} sent {:.6f} EQB (bal: {:.2f} EQB) to {} in txid {}"
+        if config.use_logger:
+            log.info(msg.format(i, amount, bal, addr, res))
+        else:
+            print(msg.format(i, amount, bal, addr[:20], res[:20], end="\r"))
+            sys.stdout.flush()
+
+        return True
     else:
+        log.error("Unable to recover. Exiting")
         sys.exit("\nUnable to recover. Exiting.\n")
         
-def start(url, N, delay=1):
-    global conn
+def start(config, url, N, delay=1):
     conn = AuthServiceProxy(url) # Initial authentication.
-    print("\nUsing {} ...\n".format(url))
-    i = 0
-    while i < N:
+    log.info("Using {} ...".format(url))
+    i = 1
+    while i <= N:
         time.sleep(delay)
-        log = send_eqb()
-        if log:
+        if send_eqb(config, conn, i):
             i += 1
-            print("Tx #" + str(i) + log, end="\r")
-            sys.stdout.flush()
-    print("")
+
+def get_config():
+    global log
+
+    log = logging.getLogger('spam')
+    log.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+
+    use_logger = False
+    env_log = os.environ.get("SPAM_LOG")
+    if env_log and env_log.isdigit() and int(env_log) == 1:
+        handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] : %(message)s'))
+        use_logger = True
+
+    log.addHandler(handler)
+
+    env_fake = os.environ.get("SPAM_FAKE")
+    fake = (env_fake.isdigit() and int(env_fake) == 1) if env_fake else False
+
+    return Config(use_logger=use_logger, fake=fake)
+
 
 if __name__ == '__main__':
     try:
         rounds = int(input("\nNumber of transactions to send: "))
         interval = int(input("Interval (seconds) between transactions: "))
-        start(RPCurl, rounds, interval)
+        config = get_config()
+        start(config, RPCurl, rounds, interval)
     except KeyboardInterrupt:
         sys.exit("\n\nInterrupted, exiting.\n")
