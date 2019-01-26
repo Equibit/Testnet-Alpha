@@ -1,15 +1,16 @@
+#!/usr/bin/env python3
 import eqb_spam, time
 
 urls = [
-    "http://equibit:equibit@127.0.0.1:18331",
-    "http://equibit:equibit@127.0.0.1:18332",
-    "http://equibit:equibit@127.0.0.1:18333",
+    "http://rpc_user:rpc_password@127.0.0.1:18331"
+#,
+#    "http://equibit:equibit@127.0.0.1:18332",
+#    "http://equibit:equibit@127.0.0.1:18333",
 ]
 
 while True:
     for url in urls:
-        eqb_spam.RPCurl = url
-        eqb_spam.start(30)
+        eqb_spam.start(url, 30, 1)
         
     # wait a minute
     for i in range(6):
