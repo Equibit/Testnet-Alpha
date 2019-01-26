@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Sends small random transactions to random addresses
 #
 # Depends on https://github.com/jgarzik/python-bitcoinrpc
@@ -26,46 +27,50 @@ addresses = [
     "eqbtestnet1q7qsm0hn5sw456kf34mu3hhcy5lzcy5jfm29rda", # @pete/peteminer-3
     ]
 
-auth = AuthServiceProxy(RPCurl) # Initial authentication.
+MAX_RETRIES = 36
+
+conn = None # Connection
 
 def send_eqb():
-    addr = random.choice(addresses)
-    amount = random.randint(1,10000)/1000000.0
-    try:
-        res = auth.sendtoaddress(addr, amount)
-        bal = auth.getbalance()
-        return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
-    except KeyboardInterrupt:
-        sys.exit("\n\nInterrupted, exiting.\n")
-    except Exception:
-        print("\n\nThere was a problem. Retrying for a few minutes.\n")
 
-        # The node can temporarily become unresponsive.
-        # Let's poke the node and resume sending when, and if it wakes up again.
-        x = 0
-        while x < 180:
+    done = False
+    attempt = 1
+
+    while (not done) and (attempt <= MAX_RETRIES):
+        addr = random.choice(addresses)
+        amount = random.randint(1,10000)/1000000.0
+        try:
+            res = conn.sendtoaddress(addr, amount)
+            bal = conn.getbalance()
+            done = True
+        except KeyboardInterrupt:
+            sys.exit("\n\nInterrupted, exiting.\n")
+        except Exception as ex:
+
+            # The node can temporarily become unresponsive.
+            # Let's poke the node and resume sending when, and if it wakes up again.
+
+            if attempt == 1:
+                print("\n\nThere was a problem (%s). Retrying for a few minutes.\n" % str(ex))
+
             time.sleep(5)
+            attempt += 1
+
             sys.stdout.write(".") # Let the user know we're still alive and well.
             sys.stdout.flush()
-            try:
-                addr = random.choice(addresses)
-                amount = random.randint(1,10000)/1000000.0
-                res = auth.sendtoaddress(addr, amount)
-                bal = auth.getbalance()
-                print("\n\nRecovered, resuming ...\n")
-                break
-            except:
-                x += 5
-        if x != 180:
+
+        if done:
             return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
         else:
             sys.exit("\nUnable to recover. Exiting.\n")
         
-def start(N, t):
+def start(url, N, delay=1):
+    global conn
+    conn = AuthServiceProxy(url) # Initial authentication.
+    print("\nUsing {} ...\n".format(url))
     i = 0
-    print("\nUsing {} ...\n".format(RPCurl))
     while i < N:
-        time.sleep(t)
+        time.sleep(delay)
         log = send_eqb()
         if log:
             i += 1
@@ -77,6 +82,6 @@ if __name__ == '__main__':
     try:
         rounds = int(input("\nNumber of transactions to send: "))
         interval = int(input("Interval (seconds) between transactions: "))
-        start(rounds, interval)
+        start(RPCurl, rounds, interval)
     except KeyboardInterrupt:
         sys.exit("\n\nInterrupted, exiting.\n")
