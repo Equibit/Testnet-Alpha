@@ -60,10 +60,10 @@ def send_eqb():
             sys.stdout.write(".") # Let the user know we're still alive and well.
             sys.stdout.flush()
 
-        if done:
-            return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
-        else:
-            sys.exit("\nUnable to recover. Exiting.\n")
+    if done:
+        return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
+    else:
+        sys.exit("\nUnable to recover. Exiting.\n")
         
 def start(url, N, delay=1):
     global conn
