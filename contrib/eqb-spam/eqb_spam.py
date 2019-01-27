@@ -14,8 +14,7 @@ import logging
 from collections import namedtuple
 
 # rpc_user and rpc_password are set in the equibit.conf file
-#RPCurl = "http://rpc_user:rpc_password@127.0.0.1:18331"
-RPCurl = "http://equibit:equibit@dockerhost:18331"
+RPCurl = ["http://rpc_user:rpc_password@127.0.0.1:18331"]
 
 # Add your own addresses to the list in a PR to join the EQB spam network!
 addresses = [
@@ -104,7 +103,7 @@ def get_config(default_urls, default_rounds, default_interval):
     use_logger = config_bool("SPAM_LOG", False)
     fake = config_bool("SPAM_FAKE", False)
 
-    urls = config_val("SPAM_URLS", default_urls).replace(" ", "").split(";")
+    urls = config_val("SPAM_URLS", ";".join(default_urls)).replace(" ", "").split(";")
 
     rounds = int(config_val("SPAM_ROUNDS", default_rounds))
     interval = int(config_val("SPAM_INTERVAL", default_interval))
@@ -131,7 +130,7 @@ if __name__ == '__main__':
     try:
         rounds = int(input("\nNumber of transactions to send: "))
         interval = int(input("Interval (seconds) between transactions: "))
-        config = get_config([RPCurl], rounds, interval)
+        config = get_config(RPCurl, rounds, interval)
         # overwrite config with rounds, interval
         start(Config(config.use_logger, config.fake, config.urls, rounds, interval))
     except KeyboardInterrupt:
