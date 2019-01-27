@@ -36,7 +36,7 @@ addresses = [
 
 MAX_RETRIES = 36
 
-Config = namedtuple('Config', ['use_logger', 'fake'])
+Config = namedtuple('Config', ['use_logger', 'fake', 'urls', 'rounds', 'interval'])
 
 def send_eqb(config, conn, i):
     done = False
@@ -80,41 +80,59 @@ def send_eqb(config, conn, i):
         log.error("Unable to recover. Exiting")
         sys.exit("\nUnable to recover. Exiting.\n")
         
-def start(config, url, N, delay=1):
-    conn = AuthServiceProxy(url) # Initial authentication.
-    log.info("Using {} ...".format(url))
-    i = 1
-    while i <= N:
-        time.sleep(delay)
-        if send_eqb(config, conn, i):
-            i += 1
+def start(config):
+    for url in config.urls: 
+        conn = AuthServiceProxy(url) # Initial authentication.
+        log.info("Using {} ...".format(url))
+        i = 1
+        while i <= config.rounds:
+            time.sleep(config.interval)
+            if send_eqb(config, conn, i):
+                i += 1
 
-def get_config():
+def config_bool(env_var, default):
+    val = os.environ.get(env_var)
+    return (val.isdigit() and int(val) == 1) if val else default
+
+def config_val(env_var, default):
+    val = os.environ.get(env_var)
+    return val if val else default
+
+def get_config(default_urls, default_rounds, default_interval):
     global log
 
+    use_logger = config_bool("SPAM_LOG", False)
+    fake = config_bool("SPAM_FAKE", False)
+
+    urls = config_val("SPAM_URLS", default_urls).replace(" ", "").split(";")
+
+    rounds = int(config_val("SPAM_ROUNDS", default_rounds))
+    interval = int(config_val("SPAM_INTERVAL", default_interval))
+
+    # Set logger
     log = logging.getLogger('spam')
     log.setLevel(logging.INFO)
+
     handler = logging.StreamHandler()
-
-    use_logger = False
-    env_log = os.environ.get("SPAM_LOG")
-    if env_log and env_log.isdigit() and int(env_log) == 1:
+    if use_logger:
         handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] : %(message)s'))
-        use_logger = True
-
     log.addHandler(handler)
 
-    env_fake = os.environ.get("SPAM_FAKE")
-    fake = (env_fake.isdigit() and int(env_fake) == 1) if env_fake else False
-
-    return Config(use_logger=use_logger, fake=fake)
+    return Config(
+            use_logger=use_logger, 
+            fake=fake, 
+            urls=urls, 
+            rounds=rounds, 
+            interval=interval
+    )
 
 
 if __name__ == '__main__':
     try:
         rounds = int(input("\nNumber of transactions to send: "))
         interval = int(input("Interval (seconds) between transactions: "))
-        config = get_config()
-        start(config, RPCurl, rounds, interval)
+        config = get_config([RPCurl], rounds, interval)
+        # overwrite config with rounds, interval
+        start(Config(config.use_logger, config.fake, config.urls, rounds, interval))
     except KeyboardInterrupt:
         sys.exit("\n\nInterrupted, exiting.\n")
