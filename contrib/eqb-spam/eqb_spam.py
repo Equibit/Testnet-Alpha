@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Sends small random transactions to random addresses
 #
 # Depends on https://github.com/jgarzik/python-bitcoinrpc
@@ -8,9 +9,12 @@ from bitcoinrpc.authproxy import AuthServiceProxy, JSONRPCException
 import random
 import time
 import sys
+import os
+import logging
+from collections import namedtuple
 
 # rpc_user and rpc_password are set in the equibit.conf file
-RPCurl = "http://rpc_user:rpc_password@127.0.0.1:18331"
+RPCurl = ["http://rpc_user:rpc_password@127.0.0.1:18331"]
 
 # Add your own addresses to the list in a PR to join the EQB spam network!
 addresses = [
@@ -27,59 +31,108 @@ addresses = [
     "eqbtestnet1q5rvfa3rnx9dykk3cg35fzq86aczh3ed4y0l8vu", # @pete/peteminer-1
     "eqbtestnet1qrucy65lehr67pjeg88gmse7k055la77j8dysmv", # @pete/peteminer-2
     "eqbtestnet1q7qsm0hn5sw456kf34mu3hhcy5lzcy5jfm29rda", # @pete/peteminer-3
+    "eqbtestnet1qzmje7kkk6d2hdmxwhfz0ypqxt69jcfl3w5wxrp", # @darvs/jupiter-mining-1
     ]
 
-auth = AuthServiceProxy(RPCurl) # Initial authentication.
+MAX_RETRIES = 36
 
-def send_eqb():
-    addr = random.choice(addresses)
-    amount = random.randint(1,10000)/1000000.0
-    try:
-        res = auth.sendtoaddress(addr, amount)
-        bal = auth.getbalance()
-        return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
-    except KeyboardInterrupt:
-        sys.exit("\n\nInterrupted, exiting.\n")
-    except Exception:
-        print("\n\nThere was a problem. Retrying for a few minutes.\n")
+Config = namedtuple('Config', ['use_logger', 'fake', 'urls', 'rounds', 'interval'])
 
-        # The node can temporarily become unresponsive.
-        # Let's poke the node and resume sending when, and if it wakes up again.
-        x = 0
-        while x < 180:
+def send_eqb(config, conn, i):
+    done = False
+    attempt = 1
+
+    while (not done) and (attempt <= MAX_RETRIES):
+        addr = random.choice(addresses)
+        amount = random.randint(1,10000)/1000000.0
+        try:
+            res = conn.sendtoaddress(addr, amount) if not config.fake else "FAKE"
+            bal = conn.getbalance()
+            done = True
+        except KeyboardInterrupt:
+            sys.exit("\n\nInterrupted, exiting.\n")
+        except Exception as ex:
+
+            # The node can temporarily become unresponsive.
+            # Let's poke the node and resume sending when, and if it wakes up again.
+
+            if attempt == 1:
+                log.warning("There was a problem ({}). Retrying for a few minutes.".format(str(ex)))
+
+            attempt += 1
+
             time.sleep(5)
-            sys.stdout.write(".") # Let the user know we're still alive and well.
-            sys.stdout.flush()
-            try:
-                addr = random.choice(addresses)
-                amount = random.randint(1,10000)/1000000.0
-                res = auth.sendtoaddress(addr, amount)
-                bal = auth.getbalance()
-                print("\n\nRecovered, resuming ...\n")
-                break
-            except:
-                x += 5
-        if x != 180:
-            return " sent {:.6f} EQB (remaining balance: {:.2f} EQB) to {}... in txid {}...".format(amount, bal, addr[:20], res[:20])
+
+            if not config.use_logger:
+                sys.stdout.write(".") # Let the user know we're still alive and well.
+                sys.stdout.flush()
+
+    if done:
+        msg = "Tx #{:02d} sent {:.6f} EQB (bal: {:.2f} EQB) to {} in txid {}"
+        if config.use_logger:
+            log.info(msg.format(i, amount, bal, addr, res))
         else:
-            sys.exit("\nUnable to recover. Exiting.\n")
-        
-def start(N, t):
-    i = 0
-    print("\nUsing {} ...\n".format(RPCurl))
-    while i < N:
-        time.sleep(t)
-        log = send_eqb()
-        if log:
-            i += 1
-            print("Tx #" + str(i) + log, end="\r")
+            print(msg.format(i, amount, bal, addr[:20], res[:20], end="\r"))
             sys.stdout.flush()
-    print("")
+
+        return True
+    else:
+        log.error("Unable to recover. Exiting")
+        sys.exit("\nUnable to recover. Exiting.\n")
+        
+def start(config):
+    for url in config.urls: 
+        conn = AuthServiceProxy(url) # Initial authentication.
+        log.info("Using {} ...".format(url))
+        i = 1
+        while i <= config.rounds:
+            time.sleep(config.interval)
+            if send_eqb(config, conn, i):
+                i += 1
+
+def config_bool(env_var, default):
+    val = os.environ.get(env_var)
+    return (val.isdigit() and int(val) == 1) if val else default
+
+def config_val(env_var, default):
+    val = os.environ.get(env_var)
+    return val if val else default
+
+def get_config(default_urls, default_rounds, default_interval):
+    global log
+
+    use_logger = config_bool("SPAM_LOG", False)
+    fake = config_bool("SPAM_FAKE", False)
+
+    urls = config_val("SPAM_URLS", ";".join(default_urls)).replace(" ", "").split(";")
+
+    rounds = int(config_val("SPAM_ROUNDS", default_rounds))
+    interval = int(config_val("SPAM_INTERVAL", default_interval))
+
+    # Set logger
+    log = logging.getLogger('spam')
+    log.setLevel(logging.INFO)
+
+    handler = logging.StreamHandler()
+    if use_logger:
+        handler.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] : %(message)s'))
+    log.addHandler(handler)
+
+    return Config(
+            use_logger=use_logger, 
+            fake=fake, 
+            urls=urls, 
+            rounds=rounds, 
+            interval=interval
+    )
+
 
 if __name__ == '__main__':
     try:
         rounds = int(input("\nNumber of transactions to send: "))
         interval = int(input("Interval (seconds) between transactions: "))
-        start(rounds, interval)
+        config = get_config(RPCurl, rounds, interval)
+        # overwrite config with rounds, interval
+        start(Config(config.use_logger, config.fake, config.urls, rounds, interval))
     except KeyboardInterrupt:
         sys.exit("\n\nInterrupted, exiting.\n")
